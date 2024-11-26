@@ -1,0 +1,28 @@
+version: '3'
+services:
+  db:
+    image: postgres:latest
+    container_name: db_container
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "5433:5432"  # El puerto 5432 del contenedor se expondrá como 5433 en tu máquina local
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d/  # Carpeta 'init' que contiene el archivo SQL o CSV para inicializar la base de datos
+
+  web:
+    build: .
+    command: ./wait-for-it.sh db:5432 -- python presas_hidraulicas/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app  # Monta todo el código fuente del proyecto al contenedor
+    ports:
+      - "8000:8000"  # Expone el puerto 8000 de la aplicación Django
+    depends_on:
+      - db  # Asegura que Django espere a que la base de datos esté lista antes de arrancar
+    environment:
+      DATABASE_HOST: db
+      DATABASE_NAME: ${POSTGRES_DB}
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
