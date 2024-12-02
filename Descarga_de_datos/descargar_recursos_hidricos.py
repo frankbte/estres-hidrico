@@ -13,7 +13,7 @@ os.makedirs(directorio_descargas, exist_ok=True)
 os.makedirs(directorio_metadatos, exist_ok=True)
 
 def obtener_metadatos(url_detalle):
-    """Extraer metadatos de la página específica del archivo."""
+#Extraer metadatos de la página específica del archivo."""
     respuesta = requests.get(url_detalle)
     respuesta.raise_for_status()
     soup = BeautifulSoup(respuesta.text, 'html.parser')
@@ -34,7 +34,7 @@ def obtener_metadatos(url_detalle):
     return metadatos
 
 def cargar_metadatos_csv(nombre_archivo):
-    """Cargar metadatos desde un archivo CSV."""
+    #"""Cargar metadatos desde un archivo CSV."""
     ruta_metadatos = os.path.join(directorio_metadatos, f'{nombre_archivo}.csv')
     if os.path.exists(ruta_metadatos):
         df = pd.read_csv(ruta_metadatos)
@@ -42,13 +42,13 @@ def cargar_metadatos_csv(nombre_archivo):
     return None
 
 def guardar_metadatos_csv(nombre_archivo, metadatos):
-    """Guardar metadatos en un archivo CSV."""
+    #"""Guardar metadatos en un archivo CSV."""
     ruta_metadatos = os.path.join(directorio_metadatos, f'{nombre_archivo}.csv')
     df = pd.DataFrame(list(metadatos.items()), columns=['Campo', 'Valor'])
     df.to_csv(ruta_metadatos, index=False)
 
 def descargar_archivo(href_descarga, ruta_archivo):
-    """Descargar un archivo desde un enlace y guardarlo."""
+    #"""Descargar un archivo desde un enlace y guardarlo."""
     respuesta_archivo = requests.get(href_descarga)
     respuesta_archivo.raise_for_status()
     with open(ruta_archivo, 'wb') as archivo:
