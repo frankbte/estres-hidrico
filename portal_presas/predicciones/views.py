@@ -7,6 +7,9 @@ from .forms import RegistroForm
 def home(request):
     return render(request, 'home.html')
 
+def sobre_nosotros(request):
+    return render(request, 'sobre_nosotros.html')
+
 def registro(request):
     if request.method == 'POST':
         form = RegistroForm(request.POST)

@@ -6,9 +6,11 @@ import xgboost as xgb
 from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error
 
-# Crear las carpetas si no existen
-os.makedirs('fotos_predict', exist_ok=True)
-os.makedirs('csv_predict', exist_ok=True)
+# Directorio donde se guardarán las predicciones y fotos
+directorio_predictor = 'static/Predictor'
+
+# Crear la carpeta si no existe
+os.makedirs(directorio_predictor, exist_ok=True)
 
 # Función para crear características adicionales
 def crear_caracteristicas(df):
@@ -83,18 +85,18 @@ def prediccion_xgboost(df, clave):
     future_w_features = df_and_future.query('isfuture').copy()
     future_w_features['pred'] = reg.predict(future_w_features[FEATURES])
     
-    # Guardar gráfico de predicciones en la carpeta 'fotos_predict'
+    # Guardar gráfico de predicciones directamente en la carpeta 'Predictor'
     plt.figure(figsize=(10, 5))
     future_w_features['pred'].plot(color='red', ms=1, lw=1, title=f'Predicciones futuras - {clave}')
-    plt.savefig(f'fotos_predict/predicciones_{clave}.png')
+    plt.savefig(f'{directorio_predictor}/predicciones_{clave}.png')
     plt.close()
 
-    # Guardar las predicciones en un archivo CSV en la carpeta 'csv_predict'
-    future_w_features[['pred']].to_csv(f'csv_predict/predicciones_{clave}.csv')
+    # Guardar las predicciones en un archivo CSV directamente en la carpeta 'Predictor'
+    future_w_features[['pred']].to_csv(f'{directorio_predictor}/predicciones_{clave}.csv')
 
 # Cargar los datos
-df_original = pd.read_csv('C:/Users/bdgae/Documents/GitHub/estres-hidrico/init/almacenamiento.csv', parse_dates=['fecha'])
-df_clima = pd.read_csv('C:/Users/bdgae/Documents/GitHub/estres-hidrico/init/datos_con_clima_y_condiciones.csv', parse_dates=['Fecha'])
+df_original = pd.read_csv('static/Predictor/datos/almacenamiento.csv', parse_dates=['fecha'])
+df_clima = pd.read_csv('static/Predictor/datos/datos_con_clima_y_condiciones.csv', parse_dates=['Fecha'])
 
 # Renombrar y combinar los datos
 df_clima.rename(columns={'Day with Precipitation': 'dia_con_precipitacion'}, inplace=True)

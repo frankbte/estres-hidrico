@@ -19,18 +19,19 @@ CREATE TABLE IF NOT EXISTS almacenamiento (
     nivel_agua DECIMAL(10, 2)
 );
 
--- Crear la tabla 'clima' con las columnas necesarias
+-- Crear la tabla 'clima' con las columnas correctas
 CREATE TABLE IF NOT EXISTS clima (
     clave_presa VARCHAR(10) REFERENCES presas(clave_presa),
     fecha DATE NOT NULL,
-    temperatura DECIMAL(5, 2),
-    precipitacion DECIMAL(5, 2),
-    temperatura_max DECIMAL(5, 2),
-    temperatura_min DECIMAL(5, 2),
-    rango_temperatura DECIMAL(5, 2),
-    velocidad_viento DECIMAL(5, 2),
-    presion DECIMAL(5, 2),
-    dia_con_precipitacion BOOLEAN,
+    nivel_agua DECIMAL(10, 2),           -- Almacenamiento (hm³)
+    temperatura DECIMAL(5, 2),           -- Temperature
+    precipitacion DECIMAL(5, 2),         -- Precipitation
+    temperatura_max DECIMAL(5, 2),       -- Max Temperature
+    temperatura_min DECIMAL(5, 2),       -- Min Temperature
+    rango_temperatura DECIMAL(5, 2),     -- Temperature Range
+    velocidad_viento DECIMAL(5, 2),      -- Wind Speed
+    presion DECIMAL(6, 2),               -- Pressure (modificado)
+    dia_con_precipitacion BOOLEAN,       -- Day with Precipitation
     PRIMARY KEY (clave_presa, fecha)
 );
 
@@ -74,6 +75,7 @@ WITH (
 COPY clima (
     clave_presa,
     fecha,
+    nivel_agua,
     temperatura,
     precipitacion,
     temperatura_max,
