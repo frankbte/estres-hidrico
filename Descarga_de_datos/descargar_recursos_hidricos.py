@@ -3,17 +3,19 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-# URLs y directorios
-url_principal = 'https://datos.sonora.gob.mx/dataset/Recursos%20H%C3%ADdricos'
-directorio_descargas = 'descargas_recursos_hidricos'
-directorio_metadatos = 'Metadatos'
+# Ruta al directorio donde está ubicado el script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Directorios donde se guardarán los archivos
+directorio_descargas = os.path.join(script_dir, 'descargas_recursos_hidricos')
+directorio_metadatos = os.path.join(script_dir, 'Metadatos')
 
 # Asegurarse de que los directorios existen
 os.makedirs(directorio_descargas, exist_ok=True)
 os.makedirs(directorio_metadatos, exist_ok=True)
 
 def obtener_metadatos(url_detalle):
-#Extraer metadatos de la página específica del archivo."""
+    """Extraer metadatos de la página específica del archivo."""
     respuesta = requests.get(url_detalle)
     respuesta.raise_for_status()
     soup = BeautifulSoup(respuesta.text, 'html.parser')
@@ -34,7 +36,7 @@ def obtener_metadatos(url_detalle):
     return metadatos
 
 def cargar_metadatos_csv(nombre_archivo):
-    #"""Cargar metadatos desde un archivo CSV."""
+    """Cargar metadatos desde un archivo CSV."""
     ruta_metadatos = os.path.join(directorio_metadatos, f'{nombre_archivo}.csv')
     if os.path.exists(ruta_metadatos):
         df = pd.read_csv(ruta_metadatos)
@@ -42,13 +44,13 @@ def cargar_metadatos_csv(nombre_archivo):
     return None
 
 def guardar_metadatos_csv(nombre_archivo, metadatos):
-    #"""Guardar metadatos en un archivo CSV."""
+    """Guardar metadatos en un archivo CSV."""
     ruta_metadatos = os.path.join(directorio_metadatos, f'{nombre_archivo}.csv')
     df = pd.DataFrame(list(metadatos.items()), columns=['Campo', 'Valor'])
     df.to_csv(ruta_metadatos, index=False)
 
 def descargar_archivo(href_descarga, ruta_archivo):
-    #"""Descargar un archivo desde un enlace y guardarlo."""
+    """Descargar un archivo desde un enlace y guardarlo."""
     respuesta_archivo = requests.get(href_descarga)
     respuesta_archivo.raise_for_status()
     with open(ruta_archivo, 'wb') as archivo:
@@ -56,6 +58,7 @@ def descargar_archivo(href_descarga, ruta_archivo):
     print(f'Archivo descargado y guardado en: {ruta_archivo}')
 
 # Obtener la página principal
+url_principal = 'https://datos.sonora.gob.mx/dataset/Recursos%20H%C3%ADdricos'
 respuesta = requests.get(url_principal)
 respuesta.raise_for_status()
 soup = BeautifulSoup(respuesta.text, 'html.parser')
@@ -80,7 +83,7 @@ for recurso in recursos:
     metadatos_existentes = cargar_metadatos_csv(nombre_archivo)
 
     # Verificar si los metadatos han cambiado
-    if not metadatos_existentes or metadatos_nuevos.get('Ãšltima actualizaciÃ³n de los datos') != metadatos_existentes.get('Ãšltima actualizaciÃ³n de los datos'):
+    if not metadatos_existentes or metadatos_nuevos.get('Última actualización de los datos') != metadatos_existentes.get('Última actualización de los datos'):
         print(f'Metadatos actualizados o inexistentes para {nombre_archivo}. Descargando archivo...')
 
         # Obtener el enlace de descarga

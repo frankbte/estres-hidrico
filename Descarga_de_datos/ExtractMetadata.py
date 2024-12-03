@@ -3,8 +3,11 @@ import requests
 import pandas as pd
 from bs4 import BeautifulSoup
 
-# Ruta al directorio de metadatos
-metadata_dir = "Metadatos"
+# Ruta al directorio donde está ubicado el script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Crear el directorio de metadatos dentro de la misma carpeta del script
+metadata_dir = os.path.join(script_dir, "Metadatos")
 
 # Crear el directorio si no existe
 if not os.path.exists(metadata_dir):
@@ -14,7 +17,7 @@ else:
     print(f"Directorio '{metadata_dir}' ya existe.")
 
 # Leer el archivo CSV con los enlaces y títulos
-csv_file = "links_y_titulos.csv"
+csv_file = os.path.join(script_dir, "links_y_titulos.csv")  # Asegurarse de que se lea desde la misma carpeta
 if not os.path.exists(csv_file):
     print(f"El archivo '{csv_file}' no existe. Asegúrate de generarlo antes de ejecutar este script.")
     exit()
@@ -61,7 +64,7 @@ for index, row in df.iterrows():
             value = cols[1].text.strip() if len(cols) > 1 else ""
             metadata[key] = value
 
-    # Guardar los metadatos en un archivo CSV
+    # Guardar los metadatos en un archivo CSV dentro del directorio 'Metadatos'
     metadata_file = os.path.join(metadata_dir, f"{titulo.replace(' ', '_')}_metadatos.csv")
     metadata_df = pd.DataFrame(list(metadata.items()), columns=["Campo", "Valor"])
     metadata_df.to_csv(metadata_file, index=False)

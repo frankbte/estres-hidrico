@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.1/css/all.min.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal de Predicciones de Presas - {% block title %}{% endblock %}</title>
+</head>
+
+<body>
+    <header>
+        <a href="{% url 'home' %}">
+            <img class="logo" src="{% static 'css/logo.png' %}" alt="logo">
+        </a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="{% url 'home' %}">Inicio</a></li>
+                <li><a href="{% url 'sobre_nosotros' %}">Sobre nosotros</a></li>
+            </ul>
+        </nav>
+
+        {% if user.is_authenticated %}
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="cta">Cerrar Sesión, {{ user.username }}</button>
+        </form> 
+        {% else %}
+        <a class="cta" href="{% url 'login' %}"><button>Ingresar</button></a>
+        {% endif %}
+    </header>
+
+    <main>
+        {% block content %}
+        <section class="sobre_nosotros">
+            <div class="sobre_nosotros-container">
+                <h2>Sobre Nosotros</h2>
+                <p>Este portal fue desarrollado como parte de un proyecto académico para la clase de Análisis y Diseño Orientado a Objetos por los estudiantes:</p>
+                <ul>
+                    <li>Gael Balderrama Domínguez</li>
+                    <li>Jehu Jonathan Ramírez Ramírez</li>
+                    <li>Francisco Yáñez Bustamante</li>
+                </ul>
+                <p>El objetivo del proyecto es ofrecer un sistema de predicción del almacenamiento de agua en presas para apoyar la gestión eficiente de recursos hídricos.</p>
+
+                <h3>Fuentes de Datos</h3>
+                <p>Los datos utilizados para realizar las predicciones provienen de los "Datos hídricos 2020-2024", disponibles en el portal de datos abiertos del gobierno de Sonora. Esta información histórica nos permite analizar el comportamiento de las presas y el almacenamiento de agua a lo largo del tiempo, lo cual es esencial para realizar nuestras predicciones.</p>
+
+                <h3>Metodología de Predicción</h3>
+                <p>Para generar las predicciones, empleamos un modelo de aprendizaje automático basado en XGBoost. Utilizamos técnicas de validación cruzada, específicamente el método TimeSeriesSplit, para asegurar que las predicciones sean precisas y generalizables. Evaluamos la calidad de nuestro modelo mediante el cálculo del error cuadrático medio (MSE), lo cual nos permite ajustar nuestras predicciones y mejorar la precisión de nuestros resultados de manera continua.</p>
+            </div>
+        </section>
+        {% endblock %}
+    </main>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h4>Enlaces Rápidos</h4>
+                <ul>
+                    <li><a href="{% url 'home' %}">Inicio</a></li>
+                    <li><a href="{% url 'sobre_nosotros' %}">Sobre nosotros</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contacto</h4>
+                <p>Teléfono: (662) 214 0760</p>
+                <p>Email: cursoadoo@gmail.com</p>
+                <p>Dirección: Blvd. Luis Encinas J, Calle Av. Rosales &, Centro, 83000 Hermosillo, Son.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Redes Sociales</h4>
+                <div class="social-links">
+                    <a href="#"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#"><i class="fab fa-instagram"></i></a>
+                    <a href="#"><i class="fab fa-twitter"></i></a>
+                    <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
