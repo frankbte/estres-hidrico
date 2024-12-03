@@ -2,16 +2,13 @@ import os
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import mean_absolute_error
+import xgboost as xgb
+from sklearn.model_selection import TimeSeriesSplit
+from sklearn.metrics import mean_squared_error
 
 # Crear las carpetas si no existen
-if not os.path.exists('fotos_predict'):
-    os.makedirs('fotos_predict')
-
-if not os.path.exists('csv_predict'):
-    os.makedirs('csv_predict')
+os.makedirs('fotos_predict', exist_ok=True)
+os.makedirs('csv_predict', exist_ok=True)
 
 # Función para crear características adicionales
 def crear_caracteristicas(df):
@@ -30,14 +27,14 @@ def add_lags(df):
     df['lag1'] = (df.index - pd.Timedelta('364 days')).map(target_map)
     df['lag2'] = (df.index - pd.Timedelta('728 days')).map(target_map)
     df['lag3'] = (df.index - pd.Timedelta('1092 days')).map(target_map)
+    
+    # Convertir 'dia_con_precipitacion' a numérico si es necesario
+    df['dia_con_precipitacion'] = df['dia_con_precipitacion'].apply(lambda x: 1 if x == 'Yes' else 0)
+    
     return df
 
-# Función de predicción utilizando Random Forest
-def prediccion_random_forest(df, clave):
-    # Dividir el dataset
-    train = df['almacenamiento'].loc[df.index < '2022-07-01']
-    test = df['almacenamiento'].loc[df.index >= '2022-07-01']
-    
+# Función de predicción utilizando XGBoost
+def prediccion_xgboost(df, clave):
     # Preprocesar los datos
     df = df.sort_index()
     df = add_lags(df)
@@ -53,10 +50,27 @@ def prediccion_random_forest(df, clave):
     X_all = df[FEATURES]
     y_all = df[TARGET]
     
-    # Crear y entrenar el modelo Random Forest
-    model_rf = RandomForestRegressor(n_estimators=100, random_state=42)
-    model_rf.fit(X_all, y_all)
+    # Crear y entrenar el modelo XGBoost
+    reg = xgb.XGBRegressor(base_score=0.5, booster='gbtree',    
+                           n_estimators=1000,
+                           early_stopping_rounds=50,
+                           objective='reg:squarederror',  
+                           max_depth=3,
+                           learning_rate=0.01)
     
+    # Dividir en entrenamiento y validación usando TimeSeriesSplit
+    tscv = TimeSeriesSplit(n_splits=5)
+    for train_index, test_index in tscv.split(X_all):
+        X_train, X_test = X_all.iloc[train_index], X_all.iloc[test_index]
+        y_train, y_test = y_all.iloc[train_index], y_all.iloc[test_index]
+        
+        reg.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
+        
+        # Evaluar el modelo
+        y_pred = reg.predict(X_test)
+        mse = mean_squared_error(y_test, y_pred)
+        print(f'Mean Squared Error for {clave}: {mse}')
+
     # Hacer predicciones futuras
     future = pd.date_range('2023-06-26', '2024-12-01')
     future_df = pd.DataFrame(index=future)
@@ -67,20 +81,20 @@ def prediccion_random_forest(df, clave):
     df_and_future = add_lags(df_and_future)
 
     future_w_features = df_and_future.query('isfuture').copy()
-    future_w_features['pred'] = model_rf.predict(future_w_features[FEATURES])
+    future_w_features['pred'] = reg.predict(future_w_features[FEATURES])
     
     # Guardar gráfico de predicciones en la carpeta 'fotos_predict'
     plt.figure(figsize=(10, 5))
     future_w_features['pred'].plot(color='red', ms=1, lw=1, title=f'Predicciones futuras - {clave}')
-    plt.savefig(f'fotos_predict/predicciones_random_forest_{clave}.png')
+    plt.savefig(f'fotos_predict/predicciones_xgboost_{clave}.png')
     plt.close()
 
     # Guardar las predicciones en un archivo CSV en la carpeta 'csv_predict'
-    future_w_features[['pred']].to_csv(f'csv_predict/predicciones_random_forest_{clave}.csv')
+    future_w_features[['pred']].to_csv(f'csv_predict/predicciones_xgboost_{clave}.csv')
 
 # Cargar los datos
 df_original = pd.read_csv('C:/Users/bdgae/Documents/GitHub/estres-hidrico/init/almacenamiento.csv', parse_dates=['fecha'])
-df_clima = pd.read_csv('C:/Users/bdgae/Documents/GitHub/estres-hidrico/init/datos_con_clima_y_condicioness.csv', parse_dates=['Fecha'])
+df_clima = pd.read_csv('C:/Users/bdgae/Documents/GitHub/estres-hidrico/init/datos_con_clima_y_condiciones.csv', parse_dates=['Fecha'])
 
 # Renombrar y combinar los datos
 df_clima.rename(columns={'Day with Precipitation': 'dia_con_precipitacion'}, inplace=True)
@@ -99,4 +113,4 @@ presas = df_original['clave'].unique()
 # Iterar sobre las presas y hacer las predicciones
 for presa in presas:
     df_presa = df_original[df_original['clave'] == presa].drop('clave', axis=1)
-    prediccion_random_forest(df_presa, presa)
+    prediccion_xgboost(df_presa, presa)
