@@ -8,18 +8,15 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-# Copia el código del proyecto
-COPY . .
+# Copia toda la carpeta 'Descarga_de_datos' al contenedor
+COPY Descarga_de_datos /app/Descarga_de_datos
 
-#Copiar el archivo CSV de 'presas' al directorio de inicialización de PostgreSQL
-COPY init/presas.csv /docker-entrypoint-initdb.d/presas.csv;
+# Copia los archivos de inicialización de PostgreSQL
+COPY init/presas.csv /docker-entrypoint-initdb.d/presas.csv
+COPY init/almacenamiento.csv /docker-entrypoint-initdb.d/almacenamiento.csv
 
-#Copiar el archivo CSV de 'datos_clima' al directorio de inicialización de PostgreSQL
-COPY init/datos_clima.csv /docker-entrypoint-initdb.d/datos_clima.csv;
-
-#Copiar el archivo CSV de 'almacenamiento' al directorio de inicialización de PostgreSQL
-COPY init/almacenamiento.csv /docker-entrypoint-initdb.d/almacenamiento.csv;
-
+# Ejecuta el script de descarga de recursos hidraulicos
+RUN python /app/Descarga_de_datos/descargar_recursos_hidraulicos.py
 
 # Expone el puerto de Django
 EXPOSE 8000

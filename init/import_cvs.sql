@@ -11,31 +11,27 @@ CREATE TABLE IF NOT EXISTS presas (
     altitud DECIMAL(7, 2)
 );
 
--- Crear la tabla 'datos_clima' para almacenar la información del clima
-CREATE TABLE IF NOT EXISTS datos_clima (
-    id_clima SERIAL PRIMARY KEY,
-    clave_clima VARCHAR(10) REFERENCES presas(clave_presa),
-    fecha_lectura DATE NOT NULL,
-    almacenamiento DECIMAL(10, 2),
-    temp DECIMAL(5, 2),
-    humidity DECIMAL(5, 2),
-    precip DECIMAL(5, 2),
-    preciptype INTEGER,
-    uvindex DECIMAL(5, 2),
-    conditions_Clear DECIMAL(5, 2),
-    conditions_Overcast DECIMAL(5, 2),
-    conditions_Partially_cloudy DECIMAL(5, 2),
-    conditions_Rain DECIMAL(5, 2),
-    conditions_Rain_Overcast DECIMAL(5, 2),
-    conditions_Rain_Partially_cloudy DECIMAL(5, 2)
-);
-
 -- Crear la tabla 'almacenamiento'
 CREATE TABLE IF NOT EXISTS almacenamiento (
     id_almacenamiento SERIAL PRIMARY KEY,
     clave_presa VARCHAR(10) REFERENCES presas(clave_presa),
     fecha DATE NOT NULL,
     nivel_agua DECIMAL(10, 2)
+);
+
+-- Crear la tabla 'clima' con las columnas necesarias
+CREATE TABLE IF NOT EXISTS clima (
+    clave_presa VARCHAR(10) REFERENCES presas(clave_presa),
+    fecha DATE NOT NULL,
+    temperatura DECIMAL(5, 2),
+    precipitacion DECIMAL(5, 2),
+    temperatura_max DECIMAL(5, 2),
+    temperatura_min DECIMAL(5, 2),
+    rango_temperatura DECIMAL(5, 2),
+    velocidad_viento DECIMAL(5, 2),
+    presion DECIMAL(5, 2),
+    dia_con_precipitacion BOOLEAN,
+    PRIMARY KEY (clave_presa, fecha)
 );
 
 -- Cargar los datos en la tabla 'presas' desde el archivo CSV correspondiente
@@ -59,32 +55,6 @@ WITH (
     ESCAPE '"'
 );
 
--- Cargar los datos en la tabla 'datos_clima' desde el archivo CSV correspondiente
-COPY datos_clima (
-    clave_clima,
-    fecha_lectura,
-    almacenamiento,
-    temp,
-    humidity,
-    precip,
-    preciptype,
-    uvindex,
-    conditions_Clear,
-    conditions_Overcast,
-    conditions_Partially_cloudy,
-    conditions_Rain,
-    conditions_Rain_Overcast,
-    conditions_Rain_Partially_cloudy
-)
-FROM '/docker-entrypoint-initdb.d/datos_clima.csv'  -- Asegúrate de que el archivo CSV esté en este directorio
-WITH (
-    FORMAT csv,
-    HEADER true,  -- Si el archivo CSV tiene una fila de encabezado
-    DELIMITER ',',
-    QUOTE '"',
-    ESCAPE '"'
-);
-
 -- Cargar los datos en la tabla 'almacenamiento' desde el archivo CSV correspondiente
 COPY almacenamiento (
     clave_presa,
@@ -100,4 +70,24 @@ WITH (
     ESCAPE '"'
 );
 
-
+-- Cargar los datos en la tabla 'clima' desde el archivo CSV correspondiente
+COPY clima (
+    clave_presa,
+    fecha,
+    temperatura,
+    precipitacion,
+    temperatura_max,
+    temperatura_min,
+    rango_temperatura,
+    velocidad_viento,
+    presion,
+    dia_con_precipitacion
+)
+FROM '/docker-entrypoint-initdb.d/datos_con_clima_y_condiciones.csv'  -- Ruta del archivo CSV generado por tu script Python
+WITH (
+    FORMAT csv,
+    HEADER true,  -- Si el archivo CSV tiene una fila de encabezado
+    DELIMITER ',',
+    QUOTE '"',
+    ESCAPE '"'
+);
