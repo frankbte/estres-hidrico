@@ -323,4 +323,52 @@ a:hover {
     height: 150px;
   }
 }
+/* Estilo para la imagen */
+.presa-display img {
+  border: 4px solid #0088a9;  /* Borde del color principal */
+  border-radius: 10px;  /* Bordes redondeados */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);  /* Sombra suave */
+  max-width: 100%;  /* Asegura que no se desborde */
+  height: auto;  /* Mantiene la proporción */
+  transition: transform 0.3s ease;  /* Efecto de transición para el hover */
+}
 
+.presa-display img:hover {
+  transform: scale(1.05);  /* Efecto de zoom al pasar el mouse */
+}
+
+/* Estilo para el selector de la imagen */
+.presa-container select {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #0088a9;
+  background-color: transparent;
+  color: #edf0f1;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.presa-container select:hover {
+  background-color: #0088a9;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* Estilo para el botón */
+button {
+  padding: 9px 25px;
+  background-color: #0088a9;
+  border: 2px solid #005f6b;  /* Borde más oscuro para el botón */
+  border-radius: 50px;
+  cursor: pointer;
+  color: #edf0f1;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: rgba(0, 136, 169, 0.8);
+  border-color: #0088a9;  /* Borde más claro al hacer hover */
+}

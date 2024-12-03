@@ -1,9 +1,55 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Inicio{% endblock %}
 
 {% block content %}
-<section>
+<section class="presa-section">
     <h1>Bienvenido al portal de predicciones de presas</h1>
+    
+    <div class="presa-container">
+        <!-- Contenedor de texto + selector -->
+        <div class="presa-selector-container">
+            <label for="presa-selector" class="presa-label">Presa:</label>
+            <select id="presa-selector" onchange="mostrarImagen()">
+                <option value="">Selecciona una presa</option>
+                <option value="AGZCH">AGZCH</option>
+                <option value="AOBSO">AOBSO</option>
+                <option value="ARCSO">ARCSO</option>
+                <option value="ARLSO">ARLSO</option>
+                <option value="CHTSO">CHTSO</option>
+                <option value="IRASO">IRASO</option>
+                <option value="LCDSO">LCDSO</option>
+                <option value="PECSO">PECSO</option>
+                <option value="PMOSO">PMOSO</option>
+            </select>
+        </div>
+
+        <!-- Cuadro de imagen -->
+        <div class="presa-display">
+            <img id="presa-image" src="" alt="Imagen de la presa" style="display: none;">
+        </div>
+    </div>
 </section>
+
+<script>
+    // Función para cambiar la imagen según la selección
+    function mostrarImagen() {
+        var selector = document.getElementById('presa-selector');
+        var imagen = document.getElementById('presa-image');
+        var nombrePresa = selector.value;
+        
+        // Verifica si se ha seleccionado una presa
+        if (nombrePresa) {
+            var imagePath = "{% static '/Predictor/' %}predicciones_" + nombrePresa + ".png";  // Ruta a las imágenes
+            console.log(imagePath);  // Muestra la ruta de la imagen generada
+            imagen.src = imagePath;
+            imagen.style.display = 'block';  // Muestra la imagen
+        } else {
+            imagen.style.display = 'none';  // Oculta la imagen si no hay selección
+        }
+    }
+</script>
+
 {% endblock %}
